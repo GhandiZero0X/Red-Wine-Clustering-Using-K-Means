@@ -38,6 +38,9 @@ print("\nInertia untuk setiap K:")
 for i in range(len(k_values)):
     print(f"K = {k_values[i]}: {inertia_list[i]}")
 
+optimal_k = np.argmin(inertia_list) + 1
+print(f"\nNilai k Paling Optimal berdasarkan Elbow Method: {optimal_k}")
+
 plt.figure(figsize=(8, 5))
 plt.plot(k_values, inertia_list, 'bx-')
 plt.xlabel('Jumlah Cluster (k)')
