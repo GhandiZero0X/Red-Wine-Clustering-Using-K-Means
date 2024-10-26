@@ -9,18 +9,18 @@ from scipy.stats import f_oneway
 # Load data
 df = pd.read_csv('wine-clustering_Normalisasi_Z-Standardization.csv')
 
-# Drop the 'class' column
+# melakukan drop kolom class
 df = df.drop(columns=['class'])
 print("Data setelah menghapus kolom 'class': \n", df.head())
 
-# Check data shape and statistics
+# cek data statistik deskriptif
 print("\nBentuk Data : \n", df.shape)
 print("\nStatistik Deskriptif : \n", df.describe())
 print("\nData Null : \n", df.isnull().sum())
 
 # Visualisasi distribusi data pada setiap fitur
 num_columns = len(df.columns)
-num_rows = (num_columns + 2) // 3  # Automatically calculate rows for 3 columns per row
+num_rows = (num_columns + 2) // 3  
 plt.figure(1, figsize=(15, num_rows * 2))
 for n, col in enumerate(df.columns):
     plt.subplot(num_rows, 3, n + 1)
@@ -29,7 +29,7 @@ for n, col in enumerate(df.columns):
     plt.title(f'Distplot of {col}')
 plt.show()
 
-# Determine optimal k with Elbow Method
+# menentukan nilai k optimal dengan Elbow Method
 X = df.values
 inertia = []
 for n in range(1, 11):
@@ -37,13 +37,13 @@ for n in range(1, 11):
     algorithm.fit(X)
     inertia.append(algorithm.inertia_)
 
-# Calculate optimal k based on relative inertia change
+# perhitungan nilai k optimal
 inertia_diff = np.diff(inertia)
 inertia_diff_ratio = inertia_diff[:-1] / inertia_diff[1:]
 optimal_k = np.argmax(inertia_diff_ratio) + 2
 print(f"\nNilai k Paling Optimal berdasarkan Elbow Method (Perubahan Relatif Inertia): {optimal_k}")
 
-# Plot Elbow graph
+# Visualisasi Elbow Method
 plt.figure(figsize=(15, 6))
 plt.plot(range(1, 11), inertia, 'o-')
 plt.xlabel('Number of Clusters')
@@ -51,7 +51,7 @@ plt.ylabel('Inertia')
 plt.title('Elbow Method for Optimal k')
 plt.show()
 
-# Build k-means model on the full dataset
+# Pelatihan KMeans dengan k optimal
 algorithm = KMeans(n_clusters=optimal_k, init='k-means++', n_init=10, max_iter=300, random_state=0)
 algorithm.fit(X)
 labels = algorithm.labels_
@@ -60,14 +60,14 @@ centroids = algorithm.cluster_centers_
 # Tambahkan hasil clustering ke dalam DataFrame
 df['cluster'] = labels
 
-# Visualize clusters (only for the first two features for 2D plot)
-X_2d = df.iloc[:, :2].values  # Use only first two features for visualization
+# visualisasi cluster dengan 2D plot
+X_2d = df.iloc[:, :2].values
 kmeans_2d = KMeans(n_clusters=optimal_k, init='k-means++', n_init=10, max_iter=300, random_state=0)
 kmeans_2d.fit(X_2d)
 labels_2d = kmeans_2d.labels_
 centroids_2d = kmeans_2d.cluster_centers_
 
-# Plotting decision boundary using first two features
+# Visoalisasi cluster pada 2D plot
 step = 0.02
 x_min, x_max = X_2d[:, 0].min() - 1, X_2d[:, 0].max() + 1
 y_min, y_max = X_2d[:, 1].min() - 1, X_2d[:, 1].max() + 1
@@ -85,7 +85,7 @@ plt.ylabel(df.columns[1])
 plt.title('Cluster Visualization (2D Projection)')
 plt.show()
 
-# Display Silhouette Score for the main clustering model
+# Silhouette Score
 score = silhouette_score(X, labels)
 print("\nSilhouette Score : ", score)
 
@@ -117,4 +117,4 @@ for cluster_num in dominant_features.index:
 # Simpan Hasil Clustering ke File CSV
 output_path = 'wine-clustering_with_clusters_newProcess.csv'
 df.to_csv(output_path, index=False)
-print(f"\nData dengan cluster dan class disimpan ke: {output_path}")
+print(f"\nData dengan cluster disimpan ke: {output_path}")
